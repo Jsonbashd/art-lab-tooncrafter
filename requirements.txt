@@ -17,4 +17,6 @@ imageio==2.34.2
 imageio-ffmpeg==0.4.9
 safetensors==0.4.3
 runpod==1.7.7
+# Newer FastAPI extras need protobuf 5, which open_clip_torch 2.22 cannot use.
+fastapi==0.115.12
 requests==2.32.3
