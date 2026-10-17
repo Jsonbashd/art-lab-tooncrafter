@@ -25,9 +25,11 @@ jobs:
       - name: Build and push
         run: |
           set -eux
+          owner=$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
+          image="ghcr.io/${owner}/art-lab-tooncrafter:latest"
           echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
-          docker build -t "ghcr.io/${GITHUB_REPOSITORY_OWNER}/art-lab-tooncrafter:latest" .
-          docker push "ghcr.io/${GITHUB_REPOSITORY_OWNER}/art-lab-tooncrafter:latest"
+          docker build -t "$image" .
+          docker push "$image"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Make the package public
