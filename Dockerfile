@@ -28,7 +28,8 @@ RUN pip install --no-cache-dir -r /tmp/worker-requirements.txt \
         torch==2.2.1 torchvision==0.17.1 \
         --index-url https://download.pytorch.org/whl/cu121 \
     && pip install --no-cache-dir --no-deps xformers==0.0.25 \
-    && python -c "import pathlib, basicsr; p = pathlib.Path(basicsr.__file__).parent / 'data' / 'degradations.py'; p.write_text(p.read_text().replace('torchvision.transforms.functional_tensor', 'torchvision.transforms.functional'))"
+    && pip install --no-cache-dir "numpy>=1.24,<2" \
+    && python -c "import pathlib; matches = list(pathlib.Path('/usr/local/lib').rglob('basicsr/data/degradations.py')); assert len(matches) == 1, matches; p = matches[0]; p.write_text(p.read_text().replace('torchvision.transforms.functional_tensor', 'torchvision.transforms.functional'))"
 
 COPY handler.py engine.py /opt/tooncrafter/
 
