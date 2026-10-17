@@ -35,15 +35,16 @@ jobs:
       - name: Make the package public
         run: |
           set -eux
-          for i in 1 2 3 4 5 6; do
-            code=$(curl -sS -o /tmp/vis.json -w "%{http_code}" -X PATCH               -H "Authorization: Bearer $GITHUB_TOKEN"               -H "Accept: application/vnd.github+json"               "https://api.github.com/user/packages/container/art-lab-tooncrafter"               -d '{"visibility":"public"}')
-            echo "visibility attempt $i -> $code"
-            cat /tmp/vis.json
-            if [ "$code" = "200" ] || [ "$code" = "204" ]; then
-              exit 0
-            fi
-            sleep 10
-          done
-          exit 1
+          owner=$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
+          curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/users/${owner}/packages?package_type=container"
+          code=$(curl -sS -o /tmp/vis.json -w "%{http_code}" -X PATCH \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/users/${owner}/packages/container/art-lab-tooncrafter" \
+            -d '{"visibility":"public"}')
+          echo "visibility -> $code"
+          cat /tmp/vis.json
+          test "$code" = "200" -o "$code" = "204"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

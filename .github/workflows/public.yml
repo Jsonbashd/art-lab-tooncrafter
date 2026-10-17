@@ -1,0 +1,28 @@
+name: Make package public
+
+on:
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set the package public
+        run: |
+          set -eux
+          owner=$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
+          curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/users/${owner}/packages?package_type=container" | tee /tmp/packages.json
+          code=$(curl -sS -o /tmp/vis.json -w "%{http_code}" -X PATCH \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/users/${owner}/packages/container/art-lab-tooncrafter" \
+            -d '{"visibility":"public"}')
+          echo "visibility -> $code"
+          cat /tmp/vis.json
+          test "$code" = "200" -o "$code" = "204"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
